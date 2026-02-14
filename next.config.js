@@ -5,4 +5,7 @@ module.exports = {
       { protocol: 'https', hostname: 'images.nypl.org' },
     ],
   },
+  env: {
+    WEB_PROXY_TOKEN: process.env.WEB_PROXY_TOKEN,
+  },
 }

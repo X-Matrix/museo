@@ -10,7 +10,7 @@
     "deploy": "npx @cloudflare/next-on-pages && wrangler deploy",
     "pages:build": "npx @cloudflare/next-on-pages",
     "worker:dev": "npx @cloudflare/next-on-pages && wrangler dev",
-    "worker:deploy": "npm run pages:build && wrangler deploy"
+    "pages:deploy": "npm run pages:build && wrangler pages deploy"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.36.0",

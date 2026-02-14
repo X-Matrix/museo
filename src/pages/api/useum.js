@@ -97,6 +97,16 @@ export const useum = async (query, pageNum = 1, pageSize = 20) => {
 }
 
 export default async function handler(req, res) {
+  // For Cloudflare Pages, environment variables may be in req context
+  if (req && typeof req === 'object' && !process.env.WEB_PROXY_TOKEN) {
+    // Try to access Cloudflare environment bindings
+    const cfEnv = req.env || (typeof globalThis !== 'undefined' && globalThis.env)
+    if (cfEnv && cfEnv.WEB_PROXY_TOKEN) {
+      process.env.WEB_PROXY_TOKEN = cfEnv.WEB_PROXY_TOKEN
+      LOG('handler: loaded WEB_PROXY_TOKEN from Cloudflare bindings')
+    }
+  }
+
   const params = req.query || {}
   const query = params.q || params.search_phrase
   const pageNum = params.pageNum ? parseInt(params.pageNum, 10) : 1
