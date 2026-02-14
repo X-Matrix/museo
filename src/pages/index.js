@@ -115,12 +115,36 @@ export default function Home() {
   return (
     <React.Fragment>
       <Head>
-        <title>Museo</title>
+        <title>Museo - 探索世界博物馆的视觉搜索引擎</title>
         <link rel='icon' href='/favicon.ico' />
         <meta
           name='description'
-          content='A visual search engine for discovering free images from some of the best museums in the world.'
+          content='Museo 是一个视觉搜索引擎，连接芝加哥艺术学院、荷兰国立博物馆、哈佛艺术博物馆等世界知名博物馆，免费探索和使用高质量艺术图像。'
         />
+        <meta name='keywords' content='博物馆,艺术,图像搜索,免费图片,艺术作品,视觉搜索,Museum,Art,Free Images' />
+        <meta name='author' content='X-Matrix' />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        
+        {/* Open Graph / Facebook */}
+        <meta property='og:type' content='website' />
+        <meta property='og:url' content='https://museo.xmatrix.wiki/' />
+        <meta property='og:title' content='Museo - 探索世界博物馆的视觉搜索引擎' />
+        <meta property='og:description' content='连接世界知名博物馆，免费探索和使用高质量艺术图像。搜索来自芝加哥艺术学院、荷兰国立博物馆、哈佛艺术博物馆等机构的艺术作品。' />
+        <meta property='og:image' content='https://museo.xmatrix.wiki/og-image.jpg' />
+        <meta property='og:locale' content='zh_CN' />
+        
+        {/* Twitter */}
+        <meta property='twitter:card' content='summary_large_image' />
+        <meta property='twitter:url' content='https://museo.xmatrix.wiki/' />
+        <meta property='twitter:title' content='Museo - 探索世界博物馆的视觉搜索引擎' />
+        <meta property='twitter:description' content='连接世界知名博物馆，免费探索和使用高质量艺术图像。' />
+        <meta property='twitter:image' content='https://museo.xmatrix.wiki/og-image.jpg' />
+        
+        {/* Additional SEO */}
+        <meta name='robots' content='index, follow' />
+        <meta name='language' content='Chinese' />
+        <meta httpEquiv='Content-Type' content='text/html; charset=utf-8' />
+        <link rel='canonical' href='https://museo.xmatrix.wiki/' />
       </Head>
 
       <main className={styles.main}>
