@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import SearchInput from '../components/SearchInput'
 import styles from '../styles/Home.module.css'
 

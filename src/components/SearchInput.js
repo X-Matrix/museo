@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../styles/SearchInput.module.css'
 
 const PLACEHOLDERS = [
@@ -25,8 +25,12 @@ const PLACEHOLDERS = [
 ]
 
 const SearchInput = ({ value, onChange }) => {
-  const placeholder =
-    PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]
+  const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0])
+
+  useEffect(() => {
+    const picked = PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]
+    setPlaceholder(picked)
+  }, [])
 
   return (
     <form

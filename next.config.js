@@ -1,6 +1,8 @@
 module.exports = {
-  target: 'serverless',
   images: {
-    domains: ['artic.edu', 'images.nypl.org'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'artic.edu' },
+      { protocol: 'https', hostname: 'images.nypl.org' },
+    ],
   },
 }
