@@ -105,21 +105,34 @@
 }
 
 @media (max-width: 768px) {
+  .form {
+    padding: 0 0.5rem;
+  }
+
   .wrapper {
     height: 3rem;
   }
   
   .input {
     padding: 0 1rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+  }
+
+  .input::placeholder {
+    font-size: 0.85rem;
   }
   
   .button {
     padding: 0 1rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
   
   .buttonText {
     display: none;
+  }
+
+  .button svg {
+    width: 18px;
+    height: 18px;
   }
 }

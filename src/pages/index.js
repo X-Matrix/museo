@@ -32,6 +32,14 @@ const ArtworkCard = ({ item, index }) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
 
+  const toggleInfo = (e) => {
+    // 移动端点击切换
+    if (window.innerWidth <= 768) {
+      e.preventDefault()
+      setShowInfo(!showInfo)
+    }
+  }
+
   return (
     <li 
       className={`${styles.artworkCard} ${imageLoaded ? styles.loaded : ''}`}
@@ -39,7 +47,12 @@ const ArtworkCard = ({ item, index }) => {
       onMouseEnter={() => setShowInfo(true)}
       onMouseLeave={() => setShowInfo(false)}
     >
-      <a href={item.url} target='_blank' rel='noopener noreferrer'>
+      <a 
+        href={item.url} 
+        target='_blank' 
+        rel='noopener noreferrer'
+        onClick={toggleInfo}
+      >
         <div className={styles.imageWrapper}>
           <img
             data-src={item.image}
@@ -60,6 +73,7 @@ const ArtworkCard = ({ item, index }) => {
         </div>
         <div className={`${styles.artworkInfo} ${showInfo ? styles.visible : ''}`}>
           <h3 className={styles.artworkTitle}>{item.title}</h3>
+          {item.museum && <p className={styles.artworkMuseum}>{item.museum}</p>}
           {item.artist && <p className={styles.artworkArtist}>{item.artist}</p>}
           {item.date && <p className={styles.artworkDate}>{item.date}</p>}
           {(item.culture || item.medium) && (
@@ -67,12 +81,12 @@ const ArtworkCard = ({ item, index }) => {
               {[item.culture, item.medium].filter(Boolean).join(' • ')}
             </p>
           )}
-          {item.museum && <p className={styles.artworkMuseum}>{item.museum}</p>}
           {item.popularity && item.popularity > 50 && (
             <p className={styles.artworkPopularity}>
               ❤️ {item.popularity} hearts
             </p>
           )}
+          <span className={styles.tapHint}>Tap for details</span>
         </div>
       </a>
     </li>

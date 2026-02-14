@@ -14,6 +14,7 @@ body {
   color: white;
   margin: 0;
   overflow-x: hidden;
+  padding: 0;
 }
 
 body::before {

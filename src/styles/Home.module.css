@@ -112,10 +112,11 @@ ul.photoList {
   --row-height: 20vw;
   display: flex;
   flex-wrap: wrap;
-  margin: 0 -2px;
+  margin: 0;
   padding: 0 0 2rem;
   list-style-type: none;
   width: 100%;
+  gap: 0;
 }
 
 ul.photoList:after {
@@ -180,7 +181,7 @@ ul.photoList:after {
   min-width: 100%;
   object-fit: cover;
   vertical-align: bottom;
-  border: 2px solid rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.3);
   transition: transform 0.5s ease, filter 0.3s ease;
 }
 
@@ -276,6 +277,16 @@ ul.photoList:after {
   font-weight: 600;
 }
 
+.tapHint {
+  display: none;
+  font-size: 0.65rem;
+  color: rgba(60, 179, 113, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
 /* Loading skeleton */
 .loadingContainer {
   width: 100%;
@@ -341,19 +352,148 @@ ul.photoList:after {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .main {
+    min-height: 100vh;
+  }
+
+  .header {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .title {
+    font-size: clamp(8rem, 15vw, 12rem);
+    margin-block: 0 -0.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    padding: 0 0.5rem;
+  }
+
+  .divider {
+    margin: 0.25rem 0;
+    height: 60px;
+  }
+
+  .credits {
+    font-size: 0.65rem;
+    padding: 0 0.5rem;
+  }
+
+  .resultCount {
+    font-size: 0.85rem;
+  }
+
+  .countBadge {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  ul.photoList {
+    --row-height: 30vw;
+    gap: 2px;
+    margin: 0;
+  }
+
+  .artworkCard {
+    min-height: 200px;
+    max-height: 50vh;
+  }
+
+  .artworkCard a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .artworkCard:active {
+    opacity: 0.95;
+  }
+
+  .artworkCard img {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  /* 移动端禁用hover效果 */
+  .artworkCard:hover img {
+    transform: none;
+    filter: none;
+  }
+
+  /* 移动端：图片底部始终显示简要信息 */
   .artworkInfo {
+    transform: translateY(0);
+    background: linear-gradient(to top, rgba(15, 32, 33, 0.92) 0%, rgba(15, 32, 33, 0.75) 60%, transparent 100%);
+    padding: 0.75rem;
+  }
+
+  /* 点击后显示完整信息 */
+  .artworkInfo.visible {
+    background: linear-gradient(to top, rgba(15, 32, 33, 0.95) 0%, rgba(15, 32, 33, 0.85) 70%, transparent 100%);
     padding: 1rem;
   }
-  
+
+  /* 移动端：始终显示标题和博物馆 */
   .artworkTitle {
-    font-size: 1rem;
+    font-size: 0.85rem;
+    margin: 0 0 0.25rem 0;
+    -webkit-line-clamp: 1;
+  }
+
+  .artworkMuseum {
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+
+  /* 移动端显示点击提示 */
+  .tapHint {
+    display: block;
+  }
+
+  /* 点击后隐藏提示 */
+  .artworkInfo.visible .tapHint {
+    display: none;
+  }
+
+  /* 移动端：默认隐藏详细信息 */
+  .artworkArtist,
+  .artworkDate,
+  .artworkMeta,
+  .artworkPopularity {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin: 0;
+    transition: all 0.3s ease;
+  }
+
+  /* 点击后显示详细信息 */
+  .artworkInfo.visible .artworkArtist,
+  .artworkInfo.visible .artworkDate,
+  .artworkInfo.visible .artworkMeta,
+  .artworkInfo.visible .artworkPopularity {
+    max-height: 100px;
+    opacity: 1;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .artworkInfo.visible .artworkTitle {
+    -webkit-line-clamp: 2;
+    margin: 0 0 0.5rem 0;
   }
   
   .loadingGrid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 2px;
+    padding: 0 0.5rem;
   }
   
   .loadingSkeleton {
-    height: 250px;
+    height: 200px;
+  }
+
+  .emptyState {
+    font-size: 1rem;
+    padding: 2rem 1rem;
   }
 }
