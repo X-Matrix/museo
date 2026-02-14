@@ -3,10 +3,8 @@ export const runtime = 'edge';
 const API_ENDPOINT = (query, page = 1) =>
   `https://api.artic.edu/api/v1/artworks/search?q=${query}&query[term][is_public_domain]=true&limit=100&page=${page}&fields=title,image_id,id,description`
 
-const IMAGE_URL = (id) => {
-  const originalUrl = `https://www.artic.edu/iiif/2/${id}/full/843,/0/default.jpg`
-  return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`
-}
+const IMAGE_URL = (imageId) =>
+  imageId ? `https://lakeimagesweb.artic.edu/iiif/2/${imageId}/full/843,/0/default.jpg` : ''
 
 const ITEM_URL = (id) => `https://www.artic.edu/artworks/${id}`
 
