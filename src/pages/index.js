@@ -130,22 +130,25 @@ export default function Home() {
           </h1>
 
           <p className={styles.subtitle}>
-            Museo is a visual search engine that connects you with the{' '}
+            Museo 是一个视觉搜索引擎，连接了{' '}
             <a href='https://www.artic.edu/archival-collections/explore-the-collection'>
-              Art Institute of Chicago
+              芝加哥艺术学院
             </a>
-            , the <a href='https://www.rijksmuseum.nl/nl'>Rijksmuseum</a>, the{' '}
-            <a href='https://harvardartmuseums.org'>Harvard Art Museums</a>, the{' '}
-            <a href='https://artsmia.org'>Minneapolis Institute of Art</a>, the{' '}
+            、<a href='https://www.rijksmuseum.nl/nl'>荷兰国立博物馆</a>、{' '}
+            <a href='https://harvardartmuseums.org'>哈佛艺术博物馆</a>、{' '}
+            <a href='https://artsmia.org'>明尼阿波利斯艺术学院</a>、{' '}
             <a href='https://www.clevelandart.org'>
-              The Cleveland Museum of Art
+              克利夫兰艺术博物馆
             </a>
-            , and the{' '}
+            、{' '}
             <a href='https://digitalcollections.nypl.org'>
-              New York Public Library Digital Collection
+              纽约公共图书馆数字收藏
             </a>
-            . Images you find here are typically free to use, but please check
-            with the source institution for more specifics.
+            、以及{' '}
+            <a href='https://www.useum.org'>
+              Useum
+            </a>
+            。您在这里找到的图像通常可以免费使用，但请向原机构确认具体使用条款。
           </p>
 
           {!searchTerm && !isLoading && (
@@ -180,13 +183,20 @@ export default function Home() {
           )}
 
           <p className={styles.credits}>
-            Lovingly constructed by{' '}
-            <a href='https://chsmc.org' target='_blank'>
-              Chase McCoy
-            </a>{' '}
-            •{' '}
+            基于{' '}
+            <a href='https://museo.app/' target='_blank'>
+              museo.app
+            </a>
+            {' '}(
             <a href='https://github.com/chasemccoy/museo' target='_blank'>
-              View the code on GitHub
+              GitHub
+            </a>
+            ){' '}
+            的原版构建{' '}
+            •{' '}
+            改进版来自{' '}
+            <a href='https://github.com/X-Matrix/museo' target='_blank'>
+              X-Matrix/museo
             </a>
           </p>
         </header>

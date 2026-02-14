@@ -3,6 +3,8 @@ import styles from '../styles/SearchInput.module.css'
 
 const PLACEHOLDERS = [
   'Trees',
+  'Claude Monet',
+  'Van Gogh',
   'Paintings of nature',
   'Maps',
   'Statues',
@@ -33,14 +35,25 @@ const PLACEHOLDERS = [
 const SearchInput = ({ value, onChange }) => {
   const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0])
   const [isFocused, setIsFocused] = useState(false)
+  const [suggestions, setSuggestions] = useState([])
 
   useEffect(() => {
     const picked = PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]
     setPlaceholder(picked)
+    
+    // 随机选择3个建议词
+    const shuffled = [...PLACEHOLDERS].sort(() => Math.random() - 0.5)
+    setSuggestions(shuffled.slice(0, 5))
   }, [])
 
+  const handleSuggestionClick = (suggestion) => {
+    // 创建一个模拟事件来更新输入值
+    onChange({ target: { value: suggestion } })
+  }
+
   return (
-    <form
+    <div>
+      <form
       action='/'
       method='get'
       onSubmit={(e) => e.preventDefault}
@@ -77,6 +90,23 @@ const SearchInput = ({ value, onChange }) => {
         </button>
       </div>
     </form>
+    
+    {!value && (
+      <div className={styles.suggestions}>
+        <span className={styles.suggestionsLabel}>Try searching:</span>
+        {suggestions.map((suggestion, index) => (
+          <button
+            key={index}
+            onClick={() => handleSuggestionClick(suggestion)}
+            className={styles.suggestionChip}
+            type="button"
+          >
+            {suggestion}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
   )
 }
 
