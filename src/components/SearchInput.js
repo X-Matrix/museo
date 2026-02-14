@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import styles from '../styles/SearchInput.module.css'
 
 const PLACEHOLDERS = [
@@ -33,6 +34,7 @@ const PLACEHOLDERS = [
 ]
 
 const SearchInput = ({ value, onChange }) => {
+  const router = useRouter()
   const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0])
   const [isFocused, setIsFocused] = useState(false)
   const [suggestions, setSuggestions] = useState([])
@@ -47,8 +49,13 @@ const SearchInput = ({ value, onChange }) => {
   }, [])
 
   const handleSuggestionClick = (suggestion) => {
-    // 创建一个模拟事件来更新输入值
+    // 更新输入值并直接搜索
     onChange({ target: { value: suggestion } })
+    router.push(`/?q=${encodeURIComponent(suggestion)}`)
+  }
+
+  const handleClear = () => {
+    onChange({ target: { value: '' } })
   }
 
   return (
@@ -71,6 +78,29 @@ const SearchInput = ({ value, onChange }) => {
           aria-label='Search the world’s museums'
           className={styles.input}
         />
+        
+        {value && (
+          <button
+            type='button'
+            onClick={handleClear}
+            className={styles.clearButton}
+            aria-label='Clear search'
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        )}
 
         <button type='submit' className={styles.button}>
           <svg 
