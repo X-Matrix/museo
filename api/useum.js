@@ -8,7 +8,7 @@ const API_ENDPOINT = (query, pageNum = 1, pageSize = 20, free = false) =>
     query
   )}`
 
-exports.useum = async (query, pageNum = 1, pageSize = 6) => {
+exports.useum = async (query, pageNum = 1, pageSize = 20) => {
   try {
     const url = API_ENDPOINT(query, pageNum, pageSize)
     LOG('useum: fetching', { url, pageNum, pageSize })
