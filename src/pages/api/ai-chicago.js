@@ -1,7 +1,5 @@
 export const runtime = 'edge';
 
-const fetch = require('node-fetch')
-
 const API_ENDPOINT = (query, page = 1) =>
   `https://api.artic.edu/api/v1/artworks/search?q=${query}&query[term][is_public_domain]=true&limit=100&page=${page}&fields=title,image_id,id,description`
 
@@ -10,7 +8,7 @@ const IMAGE_URL = (id) =>
 
 const ITEM_URL = (id) => `https://www.artic.edu/artworks/${id}`
 
-exports.aiChicago = async (query) => {
+export const aiChicago = async (query) => {
   try {
     const response = await fetch(API_ENDPOINT(query))
     const json = await response.json()
@@ -41,28 +39,6 @@ exports.aiChicago = async (query) => {
   }
 }
 
-exports.handler = async (event, context) => {
-  const query = event.queryStringParameters.q
-
-  try {
-    if (!query) {
-      throw 'Specify a query parameter'
-    }
-
-    const data = await exports.aiChicago(query)
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data),
-    }
-  } catch (error) {
-    return {
-      statusCode: 422,
-      body: String(error),
-    }
-  }
-}
-
 export default async function handler(req, res) {
   const { q: query } = req.query
 
@@ -71,7 +47,7 @@ export default async function handler(req, res) {
       return res.status(422).json({ error: 'Specify a query parameter' })
     }
 
-    const data = await exports.aiChicago(query)
+    const data = await aiChicago(query)
     return res.status(200).json(data)
   } catch (error) {
     return res.status(500).json({ error: String(error) })

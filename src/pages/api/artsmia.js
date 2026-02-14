@@ -1,7 +1,5 @@
 export const runtime = 'edge';
 
-const fetch = require('node-fetch')
-
 const API_ENDPOINT = (query, numResults = 300) =>
   `https://search.artsmia.org/${query}%20rights_type:"Public%20Domain"%20image:valid?size=${numResults}`
 
@@ -19,7 +17,7 @@ function shapeMiaData(json) {
     }))
 }
 
-exports.artsmia = async (query) => {
+export const artsmia = async (query) => {
   try {
     const response = await fetch(API_ENDPOINT(query))
     const json = await response.json()
@@ -44,28 +42,6 @@ exports.artsmia = async (query) => {
   }
 }
 
-exports.handler = async (event, context) => {
-  const query = event.queryStringParameters.q
-
-  try {
-    if (!query) {
-      throw 'Specify a query parameter'
-    }
-
-    const data = await exports.artsmia(query)
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data),
-    }
-  } catch (error) {
-    return {
-      statusCode: 422,
-      body: String(error),
-    }
-  }
-}
-
 export default async function handler(req, res) {
   const { q: query } = req.query
 
@@ -74,7 +50,7 @@ export default async function handler(req, res) {
       return res.status(422).json({ error: 'Specify a query parameter' })
     }
 
-    const data = await exports.artsmia(query)
+    const data = await artsmia(query)
     return res.status(200).json(data)
   } catch (error) {
     return res.status(500).json({ error: String(error) })

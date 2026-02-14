@@ -1,7 +1,5 @@
 export const runtime = 'edge';
 
-const fetch = require('node-fetch')
-
 const API_ENDPOINT = `http://apicollections.parismusees.paris.fr/graphql`
 
 const graphqlQuery = (query) => `
@@ -31,54 +29,6 @@ const graphqlQuery = (query) => `
     }
   }
 `
-
-exports.handler = async (event, context) => {
-  const query = event.queryStringParameters.q
-  const responseBody = JSON.stringify({query: graphqlQuery(query)})
-
-  if (!process.env.PARIS_TOKEN) {
-    return {
-      statusCode: 200,
-      body: JSON.stringify([]),
-    }
-  }
-
-  try {
-    if (!query) {
-      throw 'Specify a query parameter'
-    }
-
-    const response = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'auth-token': process.env.PARIS_TOKEN
-      },
-      body: responseBody
-    })
-
-    const json = await response.json()
-    let data = []
-
-    if (json.data && json.data.nodeQuery.entities) {
-      data = json.data.nodeQuery.entities.map(item => ({
-        title: item.title,
-        image: item.fieldVisuels[0].entity.url,
-        url: item.url
-      }))
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data),
-    }
-  } catch (error) {
-    return {
-      statusCode: 422,
-      body: String(error),
-    }
-  }
-}
 
 export default async function handler(req, res) {
   const { q: query } = req.query

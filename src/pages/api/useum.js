@@ -1,7 +1,5 @@
 export const runtime = 'edge';
 
-const fetch = require('node-fetch')
-
 const LOG = (...args) => console.log(new Date().toISOString(), ...args)
 const ERROR = (...args) => console.error(new Date().toISOString(), ...args)
 
@@ -10,7 +8,7 @@ const API_ENDPOINT = (query, pageNum = 1, pageSize = 20, free = false) =>
     query
   )}`
 
-exports.useum = async (query, pageNum = 1, pageSize = 20) => {
+export const useum = async (query, pageNum = 1, pageSize = 20) => {
   try {
     const url = API_ENDPOINT(query, pageNum, pageSize)
     LOG('useum: fetching', { url, pageNum, pageSize })
@@ -27,19 +25,11 @@ exports.useum = async (query, pageNum = 1, pageSize = 20) => {
     const options = { headers }
 
     // Optional: support proxy via PROXY_URL / HTTPS_PROXY / HTTP_PROXY env var
-    try {
-      const proxyUrl = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
-      if (proxyUrl) {
-        try {
-          const HttpsProxyAgent = require('https-proxy-agent')
-          options.agent = new HttpsProxyAgent(proxyUrl)
-          LOG('useum: using proxy', proxyUrl)
-        } catch (err) {
-          LOG('useum: https-proxy-agent not installed, skipping proxy', err && err.message)
-        }
-      }
-    } catch (err) {
-      // ignore
+    // Note: https-proxy-agent is not available in Edge Runtime
+    // This code is kept for compatibility but will not work in Edge Runtime
+    const envProxyUrl = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+    if (envProxyUrl) {
+      LOG('useum: proxy URL detected but https-proxy-agent is not available in Edge Runtime', envProxyUrl)
     }
 
     // Forward the request through the 1cup proxy to avoid Cloudflare blocks
@@ -103,45 +93,6 @@ exports.useum = async (query, pageNum = 1, pageSize = 20) => {
   } catch (error) {
     ERROR('useum: fetch error', error && (error.stack || error))
     return []
-  }
-}
-
-exports.handler = async (event, context) => {
-  const params = event.queryStringParameters || {}
-  const query = params.q || params.search_phrase
-  const pageNum = params.pageNum ? parseInt(params.pageNum, 10) : 1
-  const pageSize = params.pageSize ? parseInt(params.pageSize, 10) : 6
-
-  try {
-    if (!query) {
-      throw 'Specify a query parameter (q or search_phrase)'
-    }
-
-    LOG('handler: incoming', { query, pageNum, pageSize })
-    const data = await exports.useum(query, pageNum, pageSize)
-    LOG('handler: got data', { length: Array.isArray(data) ? data.length : 'unknown' })
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data),
-    }
-  } catch (error) {
-    ERROR('handler: error', error && (error.stack || error))
-
-    // If the error is due to missing query parameter, return 422.
-    const message = String(error)
-    if (message && message.includes('Specify a query parameter')) {
-      return {
-        statusCode: 422,
-        body: message,
-      }
-    }
-
-    // For other errors, return empty array so other sources aren't affected.
-    return {
-      statusCode: 200,
-      body: JSON.stringify([]),
-    }
   }
 }
 

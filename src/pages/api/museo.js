@@ -1,23 +1,27 @@
 export const runtime = 'edge';
 
-const { aiChicago } = require('./ai-chicago')
-const { artsmia } = require('./artsmia')
-const { useum } = require('./useum')
-const { harvard } = require('./harvard')
-const { nypl } = require('./nypl')
-const { rijks } = require('./rijks')
-const { cleveland } = require('./cleveland')
+import { aiChicago } from './ai-chicago'
+import { artsmia } from './artsmia'
+import { useum } from './useum'
+import { harvard } from './harvard'
+import { nypl } from './nypl'
+import { rijks } from './rijks'
+import { cleveland } from './cleveland'
 
 const interleave = ([x, ...xs], ys) => (x ? [x, ...interleave(ys, xs)] : ys)
 
-export default async function handler(req, res) {
-  const { q: query } = req.query
+export default async function handler(req) {
+  const url = new URL(req.url, `http://${req.headers.get('host')}`)
+  const query = url.searchParams.get('q')
   // const sources = [aiChicago, artsmia, harvard, nypl, rijks, cleveland]
   const sources = [aiChicago, artsmia, useum, harvard, nypl, rijks]
 
   try {
     if (!query) {
-      return res.status(422).json({ error: 'Specify a query parameter' })
+      return new Response(JSON.stringify({ error: 'Specify a query parameter' }), {
+        status: 422,
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
 
     const results = await Promise.allSettled(
@@ -46,8 +50,14 @@ export default async function handler(req, res) {
 
     const data = orderedArrays.reduce((acc, arr) => interleave(acc, arr), [])
 
-    return res.status(200).json(data)
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
   } catch (error) {
-    return res.status(422).json({ error: String(error) })
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 422,
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 }
