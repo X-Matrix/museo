@@ -7,11 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "deploy": "wrangler deploy",
+    "deploy": "npx @cloudflare/next-on-pages && wrangler deploy",
     "pages:build": "npx @cloudflare/next-on-pages",
-    "pages:deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static",
-    "pages:watch": "npx @cloudflare/next-on-pages --watch",
-    "pages:dev": "npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat"
+    "worker:dev": "npx @cloudflare/next-on-pages && wrangler dev",
+    "worker:deploy": "npm run pages:build && wrangler deploy"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.36.0",
