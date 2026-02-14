@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 const { aiChicago } = require('./ai-chicago')
 const { artsmia } = require('./artsmia')
 const { useum } = require('./useum')

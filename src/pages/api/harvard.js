@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 const fetch = require('node-fetch')
 
 const API_ENDPOINT = (query, page = 1) =>
@@ -35,7 +37,7 @@ exports.handler = async (event, context) => {
       throw 'Specify a query parameter'
     }
 
-    const data = await this.harvard(query)
+    const data = await exports.harvard(query)
 
     return {
       statusCode: 200,
@@ -46,5 +48,24 @@ exports.handler = async (event, context) => {
       statusCode: 422,
       body: String(error),
     }
+  }
+}
+
+export default async function handler(req, res) {
+  const { q: query } = req.query
+
+  if (!process.env.HARVARD_TOKEN) {
+    return res.status(200).json([])
+  }
+
+  try {
+    if (!query) {
+      return res.status(422).json({ error: 'Specify a query parameter' })
+    }
+
+    const data = await exports.harvard(query)
+    return res.status(200).json(data)
+  } catch (error) {
+    return res.status(500).json({ error: String(error) })
   }
 }

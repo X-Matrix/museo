@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 const fetch = require('node-fetch')
 
 const LOG = (...args) => console.log(new Date().toISOString(), ...args)
@@ -140,5 +142,35 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       body: JSON.stringify([]),
     }
+  }
+}
+
+export default async function handler(req, res) {
+  const params = req.query || {}
+  const query = params.q || params.search_phrase
+  const pageNum = params.pageNum ? parseInt(params.pageNum, 10) : 1
+  const pageSize = params.pageSize ? parseInt(params.pageSize, 10) : 6
+
+  try {
+    if (!query) {
+      return res.status(422).json({ error: 'Specify a query parameter (q or search_phrase)' })
+    }
+
+    LOG('handler: incoming', { query, pageNum, pageSize })
+    const data = await exports.useum(query, pageNum, pageSize)
+    LOG('handler: got data', { length: Array.isArray(data) ? data.length : 'unknown' })
+
+    return res.status(200).json(data)
+  } catch (error) {
+    ERROR('handler: error', error && (error.stack || error))
+
+    // If the error is due to missing query parameter, return 422.
+    const message = String(error)
+    if (message && message.includes('Specify a query parameter')) {
+      return res.status(422).json({ error: message })
+    }
+
+    // For other errors, return empty array so other sources aren't affected.
+    return res.status(200).json([])
   }
 }
