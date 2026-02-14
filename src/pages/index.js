@@ -33,26 +33,23 @@ const ArtworkCard = ({ item, index }) => {
   const [showInfo, setShowInfo] = useState(false)
 
   const toggleInfo = (e) => {
-    // 移动端点击切换
-    if (window.innerWidth <= 768) {
-      e.preventDefault()
-      setShowInfo(!showInfo)
-    }
+    e.preventDefault()
+    e.stopPropagation()
+    setShowInfo(!showInfo)
+  }
+
+  const handleLinkClick = (e) => {
+    e.stopPropagation()
   }
 
   return (
     <li 
       className={`${styles.artworkCard} ${imageLoaded ? styles.loaded : ''}`}
       style={{ animationDelay: `${index * 0.05}s` }}
-      onMouseEnter={() => setShowInfo(true)}
-      onMouseLeave={() => setShowInfo(false)}
+      onMouseEnter={() => window.innerWidth > 768 && setShowInfo(true)}
+      onMouseLeave={() => window.innerWidth > 768 && setShowInfo(false)}
     >
-      <a 
-        href={item.url} 
-        target='_blank' 
-        rel='noopener noreferrer'
-        onClick={toggleInfo}
-      >
+      <div className={styles.cardContent}>
         <div className={styles.imageWrapper}>
           <img
             data-src={item.image}
@@ -70,8 +67,37 @@ const ArtworkCard = ({ item, index }) => {
               <div className={styles.loadingSpinner}></div>
             </div>
           )}
+          
+          {/* 右上角跳转链接 */}
+          <a 
+            href={item.url} 
+            target='_blank' 
+            rel='noopener noreferrer'
+            className={styles.externalLink}
+            onClick={handleLinkClick}
+            aria-label='View on museum website'
+          >
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
         </div>
-        <div className={`${styles.artworkInfo} ${showInfo ? styles.visible : ''}`}>
+        
+        <div 
+          className={`${styles.artworkInfo} ${showInfo ? styles.visible : ''}`}
+          onClick={toggleInfo}
+        >
           <h3 className={styles.artworkTitle}>{item.title}</h3>
           {item.museum && <p className={styles.artworkMuseum}>{item.museum}</p>}
           {item.artist && <p className={styles.artworkArtist}>{item.artist}</p>}
@@ -86,9 +112,11 @@ const ArtworkCard = ({ item, index }) => {
               ❤️ {item.popularity} hearts
             </p>
           )}
-          <span className={styles.tapHint}>Tap for details</span>
+          <span className={styles.tapHint}>
+            {showInfo ? 'Tap to close' : 'Tap for details'}
+          </span>
         </div>
-      </a>
+      </div>
     </li>
   )
 }

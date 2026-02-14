@@ -162,7 +162,7 @@ ul.photoList:after {
   }
 }
 
-.artworkCard a {
+.cardContent {
   display: block;
   height: 100%;
   position: relative;
@@ -170,10 +170,43 @@ ul.photoList:after {
   overflow: hidden;
 }
 
+.artworkCard a {
+  display: block;
+  text-decoration: none;
+}
+
 .imageWrapper {
   height: 100%;
   position: relative;
   overflow: hidden;
+}
+
+.externalLink {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.externalLink:hover {
+  color: mediumseagreen;
+  transform: scale(1.15);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+}
+
+.artworkCard:hover .externalLink {
+  opacity: 1;
 }
 
 .artworkCard img {
@@ -223,7 +256,8 @@ ul.photoList:after {
   color: white;
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .artworkInfo.visible {
@@ -278,13 +312,14 @@ ul.photoList:after {
 }
 
 .tapHint {
-  display: none;
+  display: block;
   font-size: 0.65rem;
   color: rgba(60, 179, 113, 0.8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 0.5rem;
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 /* Loading skeleton */
@@ -450,9 +485,18 @@ ul.photoList:after {
     display: block;
   }
 
-  /* 点击后隐藏提示 */
+  /* 点击后隐藏提示，改变文字 */
   .artworkInfo.visible .tapHint {
-    display: none;
+    color: rgba(255, 100, 100, 0.8);
+  }
+
+  /* 移动端：外部链接始终显示 */
+  .externalLink {
+    opacity: 1;
+    width: 2.2rem;
+    height: 2.2rem;
+    top: 0.5rem;
+    right: 0.5rem;
   }
 
   /* 移动端：默认隐藏详细信息 */
