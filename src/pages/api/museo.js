@@ -1,10 +1,10 @@
-const { aiChicago } = require('../../../api/ai-chicago')
-const { artsmia } = require('../../../api/artsmia')
-const { useum } = require('../../../api/useum')
-const { harvard } = require('../../../api/harvard')
-const { nypl } = require('../../../api/nypl')
-const { rijks } = require('../../../api/rijks')
-const { cleveland } = require('../../../api/cleveland')
+const { aiChicago } = require('./ai-chicago')
+const { artsmia } = require('./artsmia')
+const { useum } = require('./useum')
+const { harvard } = require('./harvard')
+const { nypl } = require('./nypl')
+const { rijks } = require('./rijks')
+const { cleveland } = require('./cleveland')
 
 const interleave = ([x, ...xs], ys) => (x ? [x, ...interleave(ys, xs)] : ys)
 
