@@ -5,18 +5,40 @@
 
 .wrapper {
   display: flex;
-  height: 3rem;
+  height: 3.5rem;
   margin: 0 auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wrapper:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 50px rgba(60, 179, 113, 0.3);
 }
 
 .input {
   flex-grow: 1;
   margin: 0;
-  padding: 0 12px;
-  background: rgba(0, 0, 0, 0.4);
-  color: inherit;
+  padding: 0 1.5rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
   appearance: none;
-  border-radius: 4px 0 0 4px;
+  border-radius: 8px 0 0 8px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: none;
+  background: rgba(0, 0, 0, 0.6);
+  border-color: rgba(60, 179, 113, 0.5);
+}
+
+.input::placeholder {
+  color: rgba(255, 239, 213, 0.5);
 }
 
 .input:placeholder-shown {
@@ -30,15 +52,74 @@
 
 .button {
   margin: 0;
-  padding: 0 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-  transition: all 0.15s;
-  border-radius: 0 4px 4px 0;
+  padding: 0 2rem;
+  background: mediumseagreen;
+  color: #0f2021;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button svg {
+  position: relative;
+  z-index: 1;
+}
+
+.buttonText {
+  position: relative;
+  z-index: 1;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .button:hover {
-  background: mediumseagreen;
-  color: black;
+  background: #48d597;
+  transform: scale(1.02);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    height: 3rem;
+  }
+  
+  .input {
+    padding: 0 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .button {
+    padding: 0 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .buttonText {
+    display: none;
+  }
 }

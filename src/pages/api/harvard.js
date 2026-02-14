@@ -14,6 +14,10 @@ export const harvard = async (query) => {
       title: item.title,
       image: item.images[item.images.length - 1].baseimageurl,
       url: item.url,
+      artist: item.people?.[0]?.name || item.creditline || '',
+      date: item.dated || item.datebegin ? String(item.datebegin) : '',
+      museum: 'Harvard Art Museums',
+      culture: item.culture || '',
     }))
   } catch (error) {
     return []

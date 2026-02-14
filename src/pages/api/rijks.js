@@ -14,6 +14,9 @@ export const rijks = async (query) => {
       title: item.title,
       image: item.webImage.url,
       url: item.links.web,
+      artist: item.principalOrFirstMaker || item.principalMaker || '',
+      date: item.dating?.presentingDate || '',
+      museum: 'Rijksmuseum',
     }))
   } catch (error) {
     return []

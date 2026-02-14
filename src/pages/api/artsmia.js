@@ -14,6 +14,10 @@ function shapeMiaData(json) {
       title: item._source.title,
       image: IMAGE_URL(item._id),
       url: ITEM_URL(item._id),
+      artist: item._source.artist || '',
+      date: item._source.dated || '',
+      museum: 'Minneapolis Institute of Art',
+      culture: item._source.culture || '',
     }))
 }
 

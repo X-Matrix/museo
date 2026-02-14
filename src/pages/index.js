@@ -28,6 +28,57 @@ const fetchData = async ({ queryKey }) => {
   }
 }
 
+const ArtworkCard = ({ item, index }) => {
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
+
+  return (
+    <li 
+      className={`${styles.artworkCard} ${imageLoaded ? styles.loaded : ''}`}
+      style={{ animationDelay: `${index * 0.05}s` }}
+      onMouseEnter={() => setShowInfo(true)}
+      onMouseLeave={() => setShowInfo(false)}
+    >
+      <a href={item.url} target='_blank' rel='noopener noreferrer'>
+        <div className={styles.imageWrapper}>
+          <img
+            data-src={item.image}
+            alt={item.title}
+            onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              e.target.parentNode.parentNode.parentNode.removeChild(
+                e.target.parentNode.parentNode
+              )
+            }}
+            className='lazyload'
+          />
+          {!imageLoaded && (
+            <div className={styles.imagePlaceholder}>
+              <div className={styles.loadingSpinner}></div>
+            </div>
+          )}
+        </div>
+        <div className={`${styles.artworkInfo} ${showInfo ? styles.visible : ''}`}>
+          <h3 className={styles.artworkTitle}>{item.title}</h3>
+          {item.artist && <p className={styles.artworkArtist}>{item.artist}</p>}
+          {item.date && <p className={styles.artworkDate}>{item.date}</p>}
+          {(item.culture || item.medium) && (
+            <p className={styles.artworkMeta}>
+              {[item.culture, item.medium].filter(Boolean).join(' • ')}
+            </p>
+          )}
+          {item.museum && <p className={styles.artworkMuseum}>{item.museum}</p>}
+          {item.popularity && item.popularity > 50 && (
+            <p className={styles.artworkPopularity}>
+              ❤️ {item.popularity} hearts
+            </p>
+          )}
+        </div>
+      </a>
+    </li>
+  )
+}
+
 export default function Home() {
   const { query } = useRouter()
   const searchTerm = query.q
@@ -40,10 +91,12 @@ export default function Home() {
   }, [searchTerm])
 
   const emptyState = isLoading
-    ? 'Loading...'
+    ? null
     : searchTerm
     ? 'Hmm, there are no results for that query. Try something else?'
     : null
+
+  const resultCount = data?.length || 0
 
   return (
     <React.Fragment>
@@ -103,6 +156,15 @@ export default function Home() {
             onChange={(e) => setValue(e.target.value)}
           />
 
+          {searchTerm && !isLoading && data && data.length > 0 && (
+            <div className={styles.resultCount}>
+              <span className={styles.countBadge}>{resultCount}</span>
+              <span className={styles.countText}>
+                {resultCount === 1 ? 'artwork found' : 'artworks found'}
+              </span>
+            </div>
+          )}
+
           <p className={styles.credits}>
             Lovingly constructed by{' '}
             <a href='https://chsmc.org' target='_blank'>
@@ -115,25 +177,21 @@ export default function Home() {
           </p>
         </header>
 
-        {data && data.length > 0 ? (
-          <ul className={styles.photoList}>
-            {data &&
-              data.map((item, i) => (
-                <li key={i}>
-                  <a href={item.url} target='_blank'>
-                    <img
-                      data-src={item.image}
-                      alt={item.title}
-                      onError={(e) =>
-                        e.target.parentNode.parentNode.removeChild(
-                          e.target.parentNode
-                        )
-                      }
-                      className='lazyload'
-                    />
-                  </a>
-                </li>
+        {isLoading ? (
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingGrid}>
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className={styles.loadingSkeleton} style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div className={styles.skeletonShimmer}></div>
+                </div>
               ))}
+            </div>
+          </div>
+        ) : data && data.length > 0 ? (
+          <ul className={styles.photoList}>
+            {data.map((item, i) => (
+              <ArtworkCard key={i} item={item} index={i} />
+            ))}
           </ul>
         ) : (
           <>{emptyState && <p className={styles.emptyState}>{emptyState}</p>}</>

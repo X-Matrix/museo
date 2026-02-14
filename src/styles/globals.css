@@ -4,18 +4,37 @@
   font-display: block;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: var(--system-fonts);
   background: #0f2021;
   color: white;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(60, 179, 113, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 239, 213, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 a {
   color: inherit;
+  transition: color 0.2s ease;
 }
 
 a:hover {
   font-style: italic;
+  color: mediumseagreen;
 }
 
 input,
@@ -24,4 +43,13 @@ select,
 button {
   font: inherit;
   border: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }

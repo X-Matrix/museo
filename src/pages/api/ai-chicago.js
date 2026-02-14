@@ -1,7 +1,7 @@
 export const runtime = 'edge';
 
 const API_ENDPOINT = (query, page = 1) =>
-  `https://api.artic.edu/api/v1/artworks/search?q=${query}&query[term][is_public_domain]=true&limit=100&page=${page}&fields=title,image_id,id,description`
+  `https://api.artic.edu/api/v1/artworks/search?q=${query}&query[term][is_public_domain]=true&limit=100&page=${page}&fields=title,image_id,id,artist_display,date_display,department_title,medium_display`
 
 const IMAGE_URL = (imageId) =>
   imageId ? `https://lakeimagesweb.artic.edu/iiif/2/${imageId}/full/843,/0/default.jpg` : ''
@@ -18,6 +18,10 @@ export const aiChicago = async (query) => {
       title: item.title,
       image: IMAGE_URL(item.image_id),
       url: ITEM_URL(item.id),
+      artist: item.artist_display,
+      date: item.date_display,
+      museum: 'Art Institute of Chicago',
+      medium: item.medium_display,
     }))
 
     if (morePages) {
@@ -29,6 +33,10 @@ export const aiChicago = async (query) => {
           title: item.title,
           image: IMAGE_URL(item.image_id),
           url: ITEM_URL(item.id),
+          artist: item.artist_display,
+          date: item.date_display,
+          museum: 'Art Institute of Chicago',
+          medium: item.medium_display,
         }))
       )
     }

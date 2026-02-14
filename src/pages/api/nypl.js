@@ -24,12 +24,20 @@ export const nypl = async (query) => {
         title: item.title,
         image: IMAGE_URL(item.imageID),
         url: item.itemLink,
+        artist: item.creator || '',
+        date: item.dateIssued || '',
+        museum: 'New York Public Library',
+        collection: item.collection || '',
       }))
     } else {
       return [json.nyplAPI.response.result].map((item) => ({
         title: item.title,
         image: IMAGE_URL(item.imageID),
         url: item.itemLink,
+        artist: item.creator || '',
+        date: item.dateIssued || '',
+        museum: 'New York Public Library',
+        collection: item.collection || '',
       }))
     }
   } catch (error) {

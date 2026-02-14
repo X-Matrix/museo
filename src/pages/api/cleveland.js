@@ -16,6 +16,11 @@ export const cleveland = async (query) => {
       title: item.title,
       image: item.images.web.url,
       url: item.url,
+      artist: item.creators?.[0]?.description || item.creators?.[0]?.biography || '',
+      date: item.creation_date || item.creation_date_earliest ? String(item.creation_date_earliest) : '',
+      museum: 'The Cleveland Museum of Art',
+      culture: item.culture?.[0] || '',
+      medium: item.technique || '',
     }))
   } catch (error) {
     return []

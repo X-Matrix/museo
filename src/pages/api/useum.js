@@ -75,16 +75,25 @@ export const useum = async (query, pageNum = 1, pageSize = 20) => {
     // title  -> artwork_title
     // image  -> artwork_max240w_url
     // url    -> https://www.useum.org/{exhibit_useum_url}
+    // artist -> artist
+    // date   -> date_of_creation
     const mapped = items.map((item) => {
       const title = item.artwork_title || item.title || ''
       const image = item.artwork_max240w_url || item.image || ''
       const exhibit = item.exhibit_useum_url || item.exhibit_useum_url || ''
       const url = exhibit ? `https://www.useum.org/artwork/${exhibit}` : (item.url || '')
+      const artist = item.artist || ''
+      const date = item.date_of_creation ? String(item.date_of_creation) : (item.creation_start_year ? String(item.creation_start_year) : '')
+      const hearts = item.hearts || 0
 
       return {
         title,
         image,
         url,
+        artist,
+        date,
+        museum: 'Useum',
+        popularity: hearts,
       }
     })
 

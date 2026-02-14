@@ -22,10 +22,17 @@ const PLACEHOLDERS = [
   'Still life',
   'Photos of people',
   'Cities',
+  'Ocean waves',
+  'Medieval art',
+  'Renaissance paintings',
+  'Japanese prints',
+  'Egyptian artifacts',
+  'Greek sculptures',
 ]
 
 const SearchInput = ({ value, onChange }) => {
   const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0])
+  const [isFocused, setIsFocused] = useState(false)
 
   useEffect(() => {
     const picked = PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]
@@ -39,19 +46,34 @@ const SearchInput = ({ value, onChange }) => {
       onSubmit={(e) => e.preventDefault}
       className={styles.form}
     >
-      <div className={styles.wrapper}>
+      <div className={`${styles.wrapper} ${isFocused ? styles.focused : ''}`}>
         <input
           type='search'
-          placeholder={`“${placeholder}”`}
+          placeholder={`Search for "${placeholder}"...`}
           value={value}
           onChange={onChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           name='q'
           aria-label='Search the world’s museums'
           className={styles.input}
         />
 
         <button type='submit' className={styles.button}>
-          Search
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <span className={styles.buttonText}>Search</span>
         </button>
       </div>
     </form>
