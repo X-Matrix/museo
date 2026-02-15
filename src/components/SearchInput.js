@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import styles from '../styles/SearchInput.module.css'
 
@@ -33,7 +33,7 @@ const PLACEHOLDERS = [
   'Greek sculptures',
 ]
 
-const SearchInput = ({ value, onChange }) => {
+const SearchInput = React.memo(({ value, onChange }) => {
   const router = useRouter()
   const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0])
   const [isFocused, setIsFocused] = useState(false)
@@ -48,15 +48,20 @@ const SearchInput = ({ value, onChange }) => {
     setSuggestions(shuffled.slice(0, 5))
   }, [])
 
-  const handleSuggestionClick = (suggestion) => {
+  const handleSuggestionClick = useCallback((suggestion) => {
     // 更新输入值并直接搜索
     onChange({ target: { value: suggestion } })
     router.push(`/?q=${encodeURIComponent(suggestion)}`)
-  }
+  }, [onChange, router])
 
-  const handleClear = () => {
+  const handleClear = useCallback((e) => {
+    e.preventDefault()
+    e.stopPropagation()
     onChange({ target: { value: '' } })
-  }
+  }, [onChange])
+
+  const handleFocus = useCallback(() => setIsFocused(true), [])
+  const handleBlur = useCallback(() => setIsFocused(false), [])
 
   return (
     <div>
@@ -72,8 +77,8 @@ const SearchInput = ({ value, onChange }) => {
           placeholder={`Search for "${placeholder}"...`}
           value={value}
           onChange={onChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           name='q'
           aria-label='Search the world’s museums'
           className={styles.input}
@@ -125,19 +130,37 @@ const SearchInput = ({ value, onChange }) => {
       <div className={styles.suggestions}>
         <span className={styles.suggestionsLabel}>Try searching:</span>
         {suggestions.map((suggestion, index) => (
-          <button
+          <SuggestionButton
             key={index}
-            onClick={() => handleSuggestionClick(suggestion)}
-            className={styles.suggestionChip}
-            type="button"
-          >
-            {suggestion}
-          </button>
+            suggestion={suggestion}
+            onClick={handleSuggestionClick}
+          />
         ))}
       </div>
     )}
   </div>
   )
-}
+})
+
+SearchInput.displayName = 'SearchInput'
+
+// 优化建议按钮为独立组件
+const SuggestionButton = React.memo(({ suggestion, onClick }) => {
+  const handleClick = useCallback(() => {
+    onClick(suggestion)
+  }, [suggestion, onClick])
+
+  return (
+    <button
+      onClick={handleClick}
+      className={styles.suggestionChip}
+      type="button"
+    >
+      {suggestion}
+    </button>
+  )
+})
+
+SuggestionButton.displayName = 'SuggestionButton'
 
 export default SearchInput

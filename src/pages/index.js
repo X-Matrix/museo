@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useQuery } from '@tanstack/react-query'
@@ -30,33 +30,43 @@ const fetchData = async ({ queryKey }) => {
   }
 }
 
-const ArtworkCard = ({ item, index, onColorExtracted }) => {
+const ArtworkCard = React.memo(({ item, index, onColorExtracted }) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
 
-  const toggleInfo = (e) => {
+  const toggleInfo = useCallback((e) => {
     e.preventDefault()
     e.stopPropagation()
-    setShowInfo(!showInfo)
-  }
+    setShowInfo(prev => !prev)
+  }, [])
 
-  const handleLinkClick = (e) => {
+  const handleLinkClick = useCallback((e) => {
     e.stopPropagation()
-  }
+  }, [])
+
+  const handleImageLoad = useCallback(() => setImageLoaded(true), [])
+
+  const handleMouseEnter = useCallback(() => {
+    if (window.innerWidth > 768) setShowInfo(true)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    if (window.innerWidth > 768) setShowInfo(false)
+  }, [])
 
   return (
     <li 
       className={`${styles.artworkCard} ${imageLoaded ? styles.loaded : ''} ${showInfo ? styles.detailsOpen : ''}`}
       style={{ animationDelay: `${index * 0.05}s` }}
-      onMouseEnter={() => window.innerWidth > 768 && setShowInfo(true)}
-      onMouseLeave={() => window.innerWidth > 768 && setShowInfo(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className={styles.cardContent}>
         <div className={styles.imageWrapper}>
           <img
             data-src={item.image}
             alt={item.title}
-            onLoad={() => setImageLoaded(true)}
+            onLoad={handleImageLoad}
             onError={(e) => {
               e.target.parentNode.parentNode.parentNode.removeChild(
                 e.target.parentNode.parentNode
@@ -148,7 +158,12 @@ const ArtworkCard = ({ item, index, onColorExtracted }) => {
       </div>
     </li>
   )
-}
+}, (prevProps, nextProps) => {
+  // 只在item或index改变时重新渲染
+  return prevProps.item === nextProps.item && prevProps.index === nextProps.index
+})
+
+ArtworkCard.displayName = 'ArtworkCard'
 
 export default function Home() {
   const { query } = useRouter()
@@ -241,7 +256,7 @@ export default function Home() {
   }, [colorExtractionQueue, artworksWithColors])
 
   // 颜色切换函数
-  const handleColorToggle = (color, clearAll = false) => {
+  const handleColorToggle = useCallback((color, clearAll = false) => {
     if (clearAll) {
       setSelectedColors([])
       return
@@ -254,10 +269,10 @@ export default function Home() {
         return [...prev, color]
       }
     })
-  }
+  }, [])
 
   // 来源切换函数
-  const handleMuseumToggle = (museum, clearAll = false) => {
+  const handleMuseumToggle = useCallback((museum, clearAll = false) => {
     if (clearAll) {
       setSelectedMuseums([])
       return
@@ -269,10 +284,10 @@ export default function Home() {
         return [...prev, museum]
       }
     })
-  }
+  }, [])
 
   // 作者切换函数
-  const handleArtistToggle = (artist, clearAll = false) => {
+  const handleArtistToggle = useCallback((artist, clearAll = false) => {
     if (clearAll) {
       setSelectedArtists([])
       return
@@ -284,7 +299,7 @@ export default function Home() {
         return [...prev, artist]
       }
     })
-  }
+  }, [])
 
   // 计算每个颜色的匹配数量
   const colorCounts = React.useMemo(() => {
@@ -445,7 +460,7 @@ export default function Home() {
 
           <SearchInput
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={useCallback((e) => setValue(e.target.value), [])}
           />
 
           {searchTerm && !isLoading && data && data.length > 0 && (

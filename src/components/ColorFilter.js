@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import styles from '../styles/ColorFilter.module.css'
 import { COLOR_FILTERS } from '../utils/colorExtractor'
 
-const ColorFilter = ({ 
+const ColorFilter = React.memo(({ 
   selectedColors,  // 改为数组
   onColorToggle,   // 改为切换方法
   colorCounts,
@@ -17,6 +17,19 @@ const ColorFilter = ({
   const [isCollapsed, setIsCollapsed] = useState(true) // 默认收起
   const [activeTab, setActiveTab] = useState('color')
 
+  const toggleCollapse = useCallback(() => setIsCollapsed(prev => !prev), [])
+  const closeFilter = useCallback(() => setIsCollapsed(true), [])
+  
+  const handleClearAll = useCallback(() => {
+    onColorToggle(null, true) // true 表示清空
+    onMuseumToggle(null, true)
+    onArtistToggle(null, true)
+  }, [onColorToggle, onMuseumToggle, onArtistToggle])
+
+  const setTabColor = useCallback(() => setActiveTab('color'), [])
+  const setTabMuseum = useCallback(() => setActiveTab('museum'), [])
+  const setTabArtist = useCallback(() => setActiveTab('artist'), [])
+
   if (!isVisible) return null
 
   const hasActiveFilter = selectedColors.length > 0 || selectedMuseums.length > 0 || selectedArtists.length > 0
@@ -27,7 +40,7 @@ const ColorFilter = ({
       {!isCollapsed && (
         <div 
           className={styles.overlay}
-          onClick={() => setIsCollapsed(true)}
+          onClick={closeFilter}
         />
       )}
       
@@ -36,7 +49,7 @@ const ColorFilter = ({
         {/* 收起/展开按钮 */}
         <button 
           className={styles.toggleButton}
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleCollapse}
           aria-label={isCollapsed ? '展开筛选' : '收起筛选'}
         >
           <svg 
@@ -64,11 +77,7 @@ const ColorFilter = ({
             {hasActiveFilter && (
               <button 
                 className={styles.clearButton}
-                onClick={() => {
-                  onColorToggle(null, true) // true 表示清空
-                  onMuseumToggle(null, true)
-                  onArtistToggle(null, true)
-                }}
+                onClick={handleClearAll}
               >
                 清除
               </button>
@@ -79,21 +88,21 @@ const ColorFilter = ({
           <div className={styles.tabs}>
             <button 
               className={`${styles.tab} ${activeTab === 'color' ? styles.active : ''}`}
-              onClick={() => setActiveTab('color')}
+              onClick={setTabColor}
             >
               颜色
               {selectedColors.length > 0 && <span className={styles.badge}>{selectedColors.length}</span>}
             </button>
             <button 
               className={`${styles.tab} ${activeTab === 'museum' ? styles.active : ''}`}
-              onClick={() => setActiveTab('museum')}
+              onClick={setTabMuseum}
             >
               来源
               {selectedMuseums.length > 0 && <span className={styles.badge}>{selectedMuseums.length}</span>}
             </button>
             <button 
               className={`${styles.tab} ${activeTab === 'artist' ? styles.active : ''}`}
-              onClick={() => setActiveTab('artist')}
+              onClick={setTabArtist}
             >
               作者
               {selectedArtists.length > 0 && <span className={styles.badge}>{selectedArtists.length}</span>}
@@ -183,6 +192,8 @@ const ColorFilter = ({
       </div>
     </>
   )
-}
+})
+
+ColorFilter.displayName = 'ColorFilter'
 
 export default ColorFilter
