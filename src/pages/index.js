@@ -3,6 +3,8 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useQuery } from '@tanstack/react-query'
 import SearchInput from '../components/SearchInput'
+import ColorFilter from '../components/ColorFilter'
+import { extractDominantColor, matchesColorFilter, getColorLabels, COLOR_FILTERS } from '../utils/colorExtractor'
 import styles from '../styles/Home.module.css'
 
 const URL = (searchTerm) => `/api/museo?q=${searchTerm}`
@@ -28,7 +30,7 @@ const fetchData = async ({ queryKey }) => {
   }
 }
 
-const ArtworkCard = ({ item, index }) => {
+const ArtworkCard = ({ item, index, onColorExtracted }) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
 
@@ -67,6 +69,33 @@ const ArtworkCard = ({ item, index }) => {
               <div className={styles.loadingSpinner}></div>
             </div>
           )}
+          
+          {/* 主色调指示器 - 显示多个颜色 */}
+          {item.dominantColor && (() => {
+            const colors = Array.isArray(item.dominantColor) ? item.dominantColor : [item.dominantColor]
+            const colorLabels = getColorLabels(colors)
+            
+            return (
+              <div className={styles.dominantColorBadge}>
+                <div className={styles.colorDotsContainer}>
+                  {colors.map((color, idx) => (
+                    <div 
+                      key={idx}
+                      className={styles.dominantColorDot}
+                      style={{ 
+                        backgroundColor: `rgb(${color.join(',')})` 
+                      }}
+                    />
+                  ))}
+                </div>
+                {colorLabels.length > 0 && (
+                  <span className={styles.dominantColorLabel}>
+                    {colorLabels.map(label => label.name).join(' · ')}
+                  </span>
+                )}
+              </div>
+            )
+          })()}
           
           {/* 右上角跳转链接 */}
           <a 
@@ -125,12 +154,213 @@ export default function Home() {
   const { query } = useRouter()
   const searchTerm = query.q
   const [value, setValue] = useState(searchTerm || '')
+  const [selectedColors, setSelectedColors] = useState([])  // 改为数组
+  const [selectedMuseums, setSelectedMuseums] = useState([]) // 改为数组
+  const [selectedArtists, setSelectedArtists] = useState([]) // 改为数组
+  const [artworksWithColors, setArtworksWithColors] = useState([])
+  const [colorExtractionQueue, setColorExtractionQueue] = useState([])
+  const [processingIndexes, setProcessingIndexes] = useState(new Set()) // 正在处理的索引
 
   const { data, isLoading } = useQuery([searchTerm], fetchData)
 
   useEffect(() => {
     setValue(searchTerm || '')
+    // 搜索词改变时重置筛选
+    setSelectedColors([])
+    setSelectedMuseums([])
+    setSelectedArtists([])
+    setArtworksWithColors([])
+    setColorExtractionQueue([])
+    setProcessingIndexes(new Set())
   }, [searchTerm])
+
+  // 当数据加载完成时，初始化颜色数据并启动后台提取
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const artworks = data.map(item => ({ ...item, dominantColor: null }))
+      setArtworksWithColors(artworks)
+      // 设置提取队列
+      setColorExtractionQueue(artworks.map((_, index) => index))
+      console.log(`🎨 开始提取颜色，共 ${artworks.length} 张图片`)
+    }
+  }, [data])
+
+  // 后台并发提取颜色
+  useEffect(() => {
+    if (colorExtractionQueue.length === 0) return
+
+    const CONCURRENT_LIMIT = 5 // 并发数量
+    const total = artworksWithColors.length
+
+    // 获取可以处理的索引（不在处理中的）
+    const availableIndexes = colorExtractionQueue
+      .filter(index => !processingIndexes.has(index))
+      .slice(0, CONCURRENT_LIMIT)
+
+    if (availableIndexes.length === 0) return
+
+    // 标记为正在处理
+    setProcessingIndexes(prev => {
+      const newSet = new Set(prev)
+      availableIndexes.forEach(index => newSet.add(index))
+      return newSet
+    })
+
+    // 并发处理多个图片
+    const processImage = async (index) => {
+      const artwork = artworksWithColors[index]
+      const processed = total - colorExtractionQueue.length + 1
+
+      if (artwork && !artwork.dominantColor && typeof window !== 'undefined') {
+        try {
+          const color = await extractDominantColor(artwork.image)
+          console.log(`🎨 [${processed}/${total}] 提取成功 - RGB(${color.join(', ')}) - ${artwork.title || '未知作品'}`)
+          
+          setArtworksWithColors(prev => {
+            const updated = [...prev]
+            updated[index] = { ...updated[index], dominantColor: color }
+            return updated
+          })
+        } catch (error) {
+          console.error(`❌ [${processed}/${total}] 提取失败 - ${artwork.title || '未知作品'}:`, error.message)
+        }
+      } else {
+        console.log(`⏭️  [${processed}/${total}] 跳过 - 已有颜色或无效图片`)
+      }
+
+      // 从队列和处理中集合移除
+      setColorExtractionQueue(prev => {
+        const newQueue = prev.filter(i => i !== index)
+        if (newQueue.length === 0) {
+          console.log('✅ 所有图片颜色提取完成！')
+        }
+        return newQueue
+      })
+      
+      setProcessingIndexes(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(index)
+        return newSet
+      })
+    }
+
+    // 并发执行
+    availableIndexes.forEach(index => processImage(index))
+  }, [colorExtractionQueue, artworksWithColors, processingIndexes])
+
+  // 颜色切换函数
+  const handleColorToggle = (color, clearAll = false) => {
+    if (clearAll) {
+      setSelectedColors([])
+      return
+    }
+    setSelectedColors(prev => {
+      const exists = prev.some(c => c.name === color.name)
+      if (exists) {
+        return prev.filter(c => c.name !== color.name)
+      } else {
+        return [...prev, color]
+      }
+    })
+  }
+
+  // 来源切换函数
+  const handleMuseumToggle = (museum, clearAll = false) => {
+    if (clearAll) {
+      setSelectedMuseums([])
+      return
+    }
+    setSelectedMuseums(prev => {
+      if (prev.includes(museum)) {
+        return prev.filter(m => m !== museum)
+      } else {
+        return [...prev, museum]
+      }
+    })
+  }
+
+  // 作者切换函数
+  const handleArtistToggle = (artist, clearAll = false) => {
+    if (clearAll) {
+      setSelectedArtists([])
+      return
+    }
+    setSelectedArtists(prev => {
+      if (prev.includes(artist)) {
+        return prev.filter(a => a !== artist)
+      } else {
+        return [...prev, artist]
+      }
+    })
+  }
+
+  // 计算每个颜色的匹配数量
+  const colorCounts = React.useMemo(() => {
+    const counts = {}
+    COLOR_FILTERS.forEach(filter => {
+      counts[filter.name] = artworksWithColors.filter(item => 
+        item.dominantColor && matchesColorFilter(item.dominantColor, filter)
+      ).length
+    })
+    return counts
+  }, [artworksWithColors])
+
+  // 计算来源统计
+  const museums = React.useMemo(() => {
+    const museumMap = {}
+    artworksWithColors.forEach(item => {
+      if (item.museum) {
+        museumMap[item.museum] = (museumMap[item.museum] || 0) + 1
+      }
+    })
+    return Object.entries(museumMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+  }, [artworksWithColors])
+
+  // 计算作者统计
+  const artists = React.useMemo(() => {
+    const artistMap = {}
+    artworksWithColors.forEach(item => {
+      if (item.artist) {
+        artistMap[item.artist] = (artistMap[item.artist] || 0) + 1
+      }
+    })
+    return Object.entries(artistMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+  }, [artworksWithColors])
+
+  // 筛选作品 - 支持多选
+  const filteredArtworks = React.useMemo(() => {
+    let filtered = artworksWithColors
+
+    // 颜色筛选 - 多选（满足任意一个）
+    if (selectedColors.length > 0) {
+      filtered = filtered.filter(item => {
+        if (!item.dominantColor) return false
+        return selectedColors.some(color => 
+          matchesColorFilter(item.dominantColor, color)
+        )
+      })
+    }
+
+    // 来源筛选 - 多选（满足任意一个）
+    if (selectedMuseums.length > 0) {
+      filtered = filtered.filter(item => 
+        selectedMuseums.includes(item.museum)
+      )
+    }
+
+    // 作者筛选 - 多选（满足任意一个）
+    if (selectedArtists.length > 0) {
+      filtered = filtered.filter(item => 
+        selectedArtists.includes(item.artist)
+      )
+    }
+
+    return filtered
+  }, [artworksWithColors, selectedColors, selectedMuseums, selectedArtists])
 
   const emptyState = isLoading
     ? null
@@ -139,6 +369,7 @@ export default function Home() {
     : null
 
   const resultCount = data?.length || 0
+  const filteredCount = filteredArtworks?.length || 0
 
   return (
     <React.Fragment>
@@ -263,16 +494,39 @@ export default function Home() {
               ))}
             </div>
           </div>
-        ) : data && data.length > 0 ? (
+        ) : filteredArtworks && filteredArtworks.length > 0 ? (
           <ul className={styles.photoList}>
-            {data.map((item, i) => (
-              <ArtworkCard key={i} item={item} index={i} />
+            {filteredArtworks.map((item, i) => (
+              <ArtworkCard 
+                key={i} 
+                item={item} 
+                index={i} 
+                onColorExtracted={() => {}} // 不再需要，后台自动处理
+              />
             ))}
           </ul>
+        ) : (selectedColors.length > 0 || selectedMuseums.length > 0 || selectedArtists.length > 0) && data && data.length > 0 ? (
+          <p className={styles.emptyState}>
+            没有找到匹配的作品。试试调整筛选条件？
+          </p>
         ) : (
           <>{emptyState && <p className={styles.emptyState}>{emptyState}</p>}</>
         )}
       </main>
+
+      {/* 筛选侧边栏 */}
+      <ColorFilter
+        selectedColors={selectedColors}
+        onColorToggle={handleColorToggle}
+        colorCounts={colorCounts}
+        selectedMuseums={selectedMuseums}
+        onMuseumToggle={handleMuseumToggle}
+        museums={museums}
+        selectedArtists={selectedArtists}
+        onArtistToggle={handleArtistToggle}
+        artists={artists}
+        isVisible={searchTerm && !isLoading && data && data.length > 0}
+      />
     </React.Fragment>
   )
 }

@@ -209,6 +209,52 @@ ul.photoList:after {
   opacity: 1;
 }
 
+/* 主色调指示器 */
+.dominantColorBadge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(15, 32, 33, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.4s ease;
+  z-index: 9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.artworkCard:hover .dominantColorBadge {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.colorDotsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.dominantColorDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.dominantColorLabel {
+  color: peachpuff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .artworkCard img {
   max-height: 100%;
   min-width: 100%;
@@ -497,6 +543,29 @@ ul.photoList:after {
     height: 2.2rem;
     top: 0.5rem;
     right: 0.5rem;
+  }
+
+  /* 移动端：主色调指示器始终显示 */
+  .dominantColorBadge {
+    opacity: 1;
+    transform: translateX(0);
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    gap: 0.4rem;
+  }
+
+  .colorDotsContainer {
+    gap: 0.25rem;
+  }
+
+  .dominantColorDot {
+    width: 14px;
+    height: 14px;
+  }
+
+  .dominantColorLabel {
+    font-size: 0.75rem;
   }
 
   /* 移动端：默认隐藏详细信息 */
