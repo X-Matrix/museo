@@ -159,7 +159,7 @@ export default function Home() {
   const [selectedArtists, setSelectedArtists] = useState([]) // 改为数组
   const [artworksWithColors, setArtworksWithColors] = useState([])
   const [colorExtractionQueue, setColorExtractionQueue] = useState([])
-  const [processingIndexes, setProcessingIndexes] = useState(new Set()) // 正在处理的索引
+  const processingIndexesRef = React.useRef(new Set()) // 使用 ref 避免重新渲染
 
   const { data, isLoading } = useQuery([searchTerm], fetchData)
 
@@ -171,7 +171,7 @@ export default function Home() {
     setSelectedArtists([])
     setArtworksWithColors([])
     setColorExtractionQueue([])
-    setProcessingIndexes(new Set())
+    processingIndexesRef.current = new Set()
   }, [searchTerm])
 
   // 当数据加载完成时，初始化颜色数据并启动后台提取
@@ -194,17 +194,13 @@ export default function Home() {
 
     // 获取可以处理的索引（不在处理中的）
     const availableIndexes = colorExtractionQueue
-      .filter(index => !processingIndexes.has(index))
+      .filter(index => !processingIndexesRef.current.has(index))
       .slice(0, CONCURRENT_LIMIT)
 
     if (availableIndexes.length === 0) return
 
     // 标记为正在处理
-    setProcessingIndexes(prev => {
-      const newSet = new Set(prev)
-      availableIndexes.forEach(index => newSet.add(index))
-      return newSet
-    })
+    availableIndexes.forEach(index => processingIndexesRef.current.add(index))
 
     // 并发处理多个图片
     const processImage = async (index) => {
@@ -237,16 +233,12 @@ export default function Home() {
         return newQueue
       })
       
-      setProcessingIndexes(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(index)
-        return newSet
-      })
+      processingIndexesRef.current.delete(index)
     }
 
     // 并发执行
     availableIndexes.forEach(index => processImage(index))
-  }, [colorExtractionQueue, artworksWithColors, processingIndexes])
+  }, [colorExtractionQueue, artworksWithColors])
 
   // 颜色切换函数
   const handleColorToggle = (color, clearAll = false) => {
@@ -498,7 +490,7 @@ export default function Home() {
           <ul className={styles.photoList}>
             {filteredArtworks.map((item, i) => (
               <ArtworkCard 
-                key={i} 
+                key={item.url || item.image || i} 
                 item={item} 
                 index={i} 
                 onColorExtracted={() => {}} // 不再需要，后台自动处理
