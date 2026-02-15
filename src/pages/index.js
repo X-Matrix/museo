@@ -46,7 +46,7 @@ const ArtworkCard = ({ item, index, onColorExtracted }) => {
 
   return (
     <li 
-      className={`${styles.artworkCard} ${imageLoaded ? styles.loaded : ''}`}
+      className={`${styles.artworkCard} ${imageLoaded ? styles.loaded : ''} ${showInfo ? styles.detailsOpen : ''}`}
       style={{ animationDelay: `${index * 0.05}s` }}
       onMouseEnter={() => window.innerWidth > 768 && setShowInfo(true)}
       onMouseLeave={() => window.innerWidth > 768 && setShowInfo(false)}

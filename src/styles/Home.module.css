@@ -545,14 +545,31 @@ ul.photoList:after {
     right: 0.5rem;
   }
 
-  /* 移动端：主色调指示器始终显示 */
+  /* 移动端：主色调指示器默认隐藏 */
   .dominantColorBadge {
-    opacity: 1;
-    transform: translateX(0);
+    opacity: 0 !important;
+    transform: translateX(0) !important;
     top: 0.5rem;
     left: 0.5rem;
     padding: 0.35rem 0.65rem;
     gap: 0.4rem;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  /* 点击详情后显示主色调 */
+  .artworkCard.detailsOpen .dominantColorBadge {
+    opacity: 1 !important;
+    pointer-events: auto;
+  }
+  
+  /* 禁用移动端的 hover 效果 */
+  .artworkCard:hover .dominantColorBadge {
+    opacity: 0 !important;
+  }
+  
+  .artworkCard.detailsOpen:hover .dominantColorBadge {
+    opacity: 1 !important;
   }
 
   .colorDotsContainer {
